@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Legal · EasyMark</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy:       #0B1628;
+      --navyMid:    #111F35;
+      --navyLight:  #1A2E4A;
+      --navyCard:   #162238;
+      --blue:       #3B8EFF;
+      --blueSoft:   #5FA3FF;
+      --slate:      #7A8FA8;
+      --slateLight: #B8C8DA;
+      --text:       #E8EFF7;
+      --textSub:    #A0B2C6;
+      --emerald:    #0FCF8A;
+      --border:     rgba(100,140,190,0.15);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--navy);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--navyMid); }
+    ::-webkit-scrollbar-thumb { background: var(--navyLight); border-radius: 3px; }
+
+    /* ── Nav ── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--navyMid);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      display: flex; align-items: center; height: 60px; gap: 12px;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+    .nav-logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .nav-logo-text { font-weight: 800; font-size: 16px; color: var(--text); }
+    .nav-spacer { flex: 1; }
+    .nav-back {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--navyLight); border: 1px solid var(--border);
+      border-radius: 8px; padding: 7px 14px;
+      color: var(--textSub); font-size: 12px; font-weight: 600;
+      text-decoration: none; transition: color .15s;
+    }
+    .nav-back:hover { color: var(--text); }
+
+    /* ── Layout ── */
+    .page { display: flex; max-width: 1100px; margin: 0 auto; padding: 48px 40px; gap: 48px; }
+
+    /* ── Sidebar TOC ── */
+    .toc {
+      width: 220px; flex-shrink: 0;
+      position: sticky; top: 80px; height: fit-content;
+    }
+    .toc-title {
+      font-size: 10px; font-weight: 700; color: var(--slate);
+      letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 14px;
+    }
+    .toc-section { margin-bottom: 20px; }
+    .toc-section-label {
+      font-size: 11px; font-weight: 700; color: var(--slateLight);
+      margin-bottom: 8px; padding: 4px 10px;
+      background: var(--navyCard); border-radius: 6px;
+      border-left: 2px solid var(--blue);
+    }
+    .toc a {
+      display: block; font-size: 12px; color: var(--slate);
+      text-decoration: none; padding: 4px 10px; border-radius: 6px;
+      transition: all .15s; margin-bottom: 2px;
+    }
+    .toc a:hover { color: var(--text); background: var(--navyLight); }
+
+    /* ── Content ── */
+    .content { flex: 1; min-width: 0; }
+
+    /* ── Doc Header ── */
+    .doc-header {
+      background: var(--navyCard);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px 32px; margin-bottom: 40px;
+    }
+    .doc-header-row { display: flex; align-items: flex-start; gap: 20px; }
+    .doc-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .doc-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+    .doc-meta { font-size: 12px; color: var(--slate); }
+    .doc-meta span { margin-right: 16px; }
+    .doc-intro { font-size: 13px; color: var(--textSub); margin-top: 14px; line-height: 1.8; }
+
+    /* ── Document ── */
+    .doc { margin-bottom: 64px; }
+    .doc + .doc { border-top: 1px solid var(--border); padding-top: 56px; }
+
+    .section { margin-bottom: 36px; }
+    .section-number {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px; border-radius: 6px;
+      background: rgba(59,142,255,0.15); color: var(--blue);
+      font-size: 11px; font-weight: 800; margin-right: 10px; flex-shrink: 0;
+    }
+    h2 {
+      font-size: 13px; font-weight: 800; color: var(--text);
+      text-transform: uppercase; letter-spacing: 1px;
+      display: flex; align-items: center; margin-bottom: 14px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    h3 {
+      font-size: 13px; font-weight: 700; color: var(--slateLight);
+      margin: 16px 0 8px;
+    }
+    p { font-size: 13px; color: var(--textSub); margin-bottom: 12px; line-height: 1.8; }
+    ul, ol { margin: 10px 0 14px 0; padding-left: 0; list-style: none; }
+    ul li, ol li {
+      font-size: 13px; color: var(--textSub); padding: 5px 0 5px 20px;
+      position: relative; line-height: 1.7;
+    }
+    ul li::before {
+      content: ''; position: absolute; left: 4px; top: 13px;
+      width: 5px; height: 5px; border-radius: 50%; background: var(--blue);
+    }
+    ol { counter-reset: list-counter; }
+    ol li { counter-increment: list-counter; }
+    ol li::before {
+      content: counter(list-counter) '.';
+      position: absolute; left: 0; top: 5px;
+      font-size: 11px; font-weight: 700; color: var(--blue);
+    }
+
+    .highlight-box {
+      background: rgba(59,142,255,0.07);
+      border: 1px solid rgba(59,142,255,0.2);
+      border-radius: 10px; padding: 14px 18px; margin: 16px 0;
+    }
+    .highlight-box p { margin: 0; }
+    .warning-box {
+      background: rgba(245,165,36,0.07);
+      border: 1px solid rgba(245,165,36,0.2);
+      border-radius: 10px; padding: 14px 18px; margin: 16px 0;
+    }
+    .warning-box p { margin: 0; color: #B8A070; }
+
+    strong { color: var(--slateLight); font-weight: 600; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Contact Card ── */
+    .contact-card {
+      background: var(--navyCard); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px 22px; margin-top: 20px;
+    }
+    .contact-card-title { font-size: 12px; font-weight: 700; color: var(--slateLight); margin-bottom: 10px; }
+    .contact-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .contact-label { font-size: 11px; color: var(--slate); width: 60px; flex-shrink: 0; }
+    .contact-value { font-size: 13px; color: var(--textSub); }
+
+    /* ── Footer ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 40px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; color: var(--slate);
+    }
+    .footer a { color: var(--slate); text-decoration: none; }
+    .footer a:hover { color: var(--text); }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 20px; letter-spacing: .4px;
+      text-transform: uppercase;
+    }
+    .badge-blue  { background: rgba(59,142,255,0.15); color: var(--blue);    border: 1px solid rgba(59,142,255,0.3); }
+    .badge-green { background: rgba(15,207,138,0.15); color: var(--emerald); border: 1px solid rgba(15,207,138,0.3); }
+
+    @media (max-width: 768px) {
+      .page { flex-direction: column; padding: 24px 20px; gap: 32px; }
+      .toc  { width: 100%; position: static; }
+      .nav  { padding: 0 20px; }
+      .footer { flex-direction: column; gap: 8px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <a href="https://easymark-jade.vercel.app" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg width="20" height="20" viewBox="0 0 36 36" fill="none">
+        <path d="M6 10h24M6 17h16M6 24h20" stroke="white" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="28" cy="25" r="6" fill="#0FCF8A"/>
+        <path d="M25.5 25l2 2 3.5-3.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <span class="nav-logo-text">EasyMark</span>
+  </a>
+  <div class="nav-spacer"></div>
+  <a href="https://easymark-jade.vercel.app" class="nav-back">← Back to App</a>
+</nav>
+
+<div class="page">
+
+  <!-- Table of Contents -->
+  <aside class="toc">
+    <div class="toc-title">On this page</div>
+
+    <div class="toc-section">
+      <div class="toc-section-label">Terms of Service</div>
+      <a href="#tos-acceptance">1. Acceptance</a>
+      <a href="#tos-description">2. Description of Service</a>
+      <a href="#tos-accounts">3. User Accounts</a>
+      <a href="#tos-acceptable">4. Acceptable Use</a>
+      <a href="#tos-ip">5. Intellectual Property</a>
+      <a href="#tos-content">6. User Content</a>
+      <a href="#tos-ai">7. AI-Powered Features</a>
+      <a href="#tos-payment">8. Payments & Subscriptions</a>
+      <a href="#tos-termination">9. Termination</a>
+      <a href="#tos-liability">10. Limitation of Liability</a>
+      <a href="#tos-changes">11. Changes to Terms</a>
+      <a href="#tos-governing">12. Governing Law</a>
+    </div>
+
+    <div class="toc-section">
+      <div class="toc-section-label">Privacy Policy</div>
+      <a href="#pp-intro">1. Introduction</a>
+      <a href="#pp-collect">2. Information We Collect</a>
+      <a href="#pp-use">3. How We Use Information</a>
+      <a href="#pp-share">4. Information Sharing</a>
+      <a href="#pp-storage">5. Data Storage & Security</a>
+      <a href="#pp-retention">6. Data Retention</a>
+      <a href="#pp-rights">7. Your Rights</a>
+      <a href="#pp-cookies">8. Cookies</a>
+      <a href="#pp-children">9. Children's Privacy</a>
+      <a href="#pp-changes">10. Policy Changes</a>
+      <a href="#pp-contact">11. Contact Us</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="content">
+
+    <!-- ══════════════════════════════════════════════
+         TERMS OF SERVICE
+    ══════════════════════════════════════════════ -->
+    <div class="doc" id="terms">
+
+      <div class="doc-header">
+        <div class="doc-header-row">
+          <div class="doc-icon" style="background: rgba(59,142,255,0.15);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B8EFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </div>
+          <div>
+            <div class="doc-title">Terms of Service</div>
+            <div class="doc-meta">
+              <span>Effective: July 29, 2026</span>
+              <span>Last Updated: July 29, 2026</span>
+              <span class="badge badge-blue">Version 1.0</span>
+            </div>
+          </div>
+        </div>
+        <div class="doc-intro">
+          Please read these Terms of Service carefully before using EasyMark. By accessing or using our platform, you agree to be bound by these terms. If you do not agree, please do not use EasyMark.
+        </div>
+      </div>
+
+      <!-- 1 -->
+      <div class="section" id="tos-acceptance">
+        <h2><span class="section-number">1</span> Acceptance of Terms</h2>
+        <p>By creating an account or using any part of the EasyMark platform ("Service"), you confirm that you have read, understood, and agree to be legally bound by these Terms of Service ("Terms") and our Privacy Policy, which is incorporated herein by reference.</p>
+        <p>If you are using EasyMark on behalf of an institution, school, or organisation, you represent that you have the authority to bind that entity to these Terms, and "you" refers to both you and that entity.</p>
+      </div>
+
+      <!-- 2 -->
+      <div class="section" id="tos-description">
+        <h2><span class="section-number">2</span> Description of Service</h2>
+        <p>EasyMark is an AI-powered exam script marking platform that enables educators to:</p>
+        <ul>
+          <li>Upload lecture slides, notes, and marking schemes as reference materials</li>
+          <li>Configure custom grading rules and evaluation criteria</li>
+          <li>Upload scanned student exam scripts for automated evaluation</li>
+          <li>Receive AI-generated scores, grades, and feedback per student</li>
+          <li>Export results and view historical marking sessions</li>
+        </ul>
+        <div class="highlight-box">
+          <p><strong>Important:</strong> EasyMark is a decision-support tool. Final grading decisions remain the sole responsibility of the educator using the platform. AI-generated scores should be reviewed before being communicated to students.</p>
+        </div>
+      </div>
+
+      <!-- 3 -->
+      <div class="section" id="tos-accounts">
+        <h2><span class="section-number">3</span> User Accounts</h2>
+        <h3>Registration</h3>
+        <p>To access EasyMark, you must create an account using a valid email address. You agree to provide accurate, current, and complete information during registration and to keep your account information updated.</p>
+        <h3>Account Security</h3>
+        <p>You are responsible for maintaining the confidentiality of your login credentials. You agree to notify us immediately at <a href="mailto:cnoble451@gmail.com">cnoble451@gmail.com</a> if you suspect any unauthorised access to your account. EasyMark will not be liable for any loss arising from unauthorised use of your account.</p>
+        <h3>One Account Per User</h3>
+        <p>Each individual user may maintain only one active account. Creating multiple accounts to circumvent usage limits or restrictions is prohibited.</p>
+      </div>
+
+      <!-- 4 -->
+      <div class="section" id="tos-acceptable">
+        <h2><span class="section-number">4</span> Acceptable Use</h2>
+        <p>You agree to use EasyMark only for lawful purposes and in accordance with these Terms. You must not:</p>
+        <ul>
+          <li>Use the Service to grade scripts for fraudulent or deceptive academic purposes</li>
+          <li>Upload content that violates any applicable law or regulation</li>
+          <li>Attempt to gain unauthorised access to other users' accounts or data</li>
+          <li>Reverse engineer, decompile, or attempt to extract the source code of the platform</li>
+          <li>Use automated tools, bots, or scripts to scrape or access the Service</li>
+          <li>Upload malicious files, viruses, or harmful content</li>
+          <li>Resell, sublicense, or commercially exploit the Service without prior written permission</li>
+          <li>Use the Service in a way that could damage, disable, or impair the platform</li>
+        </ul>
+        <p>We reserve the right to suspend or terminate accounts that violate these acceptable use guidelines.</p>
+      </div>
+
+      <!-- 5 -->
+      <div class="section" id="tos-ip">
+        <h2><span class="section-number">5</span> Intellectual Property</h2>
+        <h3>EasyMark's Property</h3>
+        <p>The EasyMark platform, including its design, code, branding, logos, and all associated materials, is the exclusive property of EasyMark and its licensors. Nothing in these Terms grants you any right to use our trademarks, logos, or brand elements without prior written consent.</p>
+        <h3>Your Content</h3>
+        <p>You retain full ownership of all content you upload to EasyMark, including your slides, marking schemes, and student scripts. By uploading content, you grant EasyMark a limited, non-exclusive licence to process and analyse that content solely for the purpose of providing the Service to you.</p>
+      </div>
+
+      <!-- 6 -->
+      <div class="section" id="tos-content">
+        <h2><span class="section-number">6</span> User Content & Student Data</h2>
+        <p>You are solely responsible for the content you upload to EasyMark. By uploading student exam scripts or any materials containing personal information, you confirm that:</p>
+        <ul>
+          <li>You have the legal authority to process and share that data</li>
+          <li>You have complied with all applicable data protection laws in your jurisdiction</li>
+          <li>You have obtained any necessary consents from students or your institution</li>
+          <li>The content does not infringe any third-party intellectual property rights</li>
+        </ul>
+        <div class="warning-box">
+          <p><strong>Student Data Notice:</strong> We strongly recommend anonymising student scripts before uploading where possible — for example, using student ID numbers rather than full names — to minimise the processing of personal data.</p>
+        </div>
+      </div>
+
+      <!-- 7 -->
+      <div class="section" id="tos-ai">
+        <h2><span class="section-number">7</span> AI-Powered Features & Accuracy</h2>
+        <p>EasyMark uses artificial intelligence to assist with exam marking. By using these features, you acknowledge and agree that:</p>
+        <ul>
+          <li>AI-generated grades and feedback are suggestions, not final determinations</li>
+          <li>The accuracy of AI grading depends on the quality and completeness of uploaded materials</li>
+          <li>EasyMark does not guarantee that AI evaluations will be error-free or suitable for any particular academic standard</li>
+          <li>Educators bear full professional responsibility for reviewing AI output before applying grades</li>
+          <li>EasyMark shall not be liable for any academic or institutional consequences arising from reliance on AI-generated scores without human review</li>
+        </ul>
+      </div>
+
+      <!-- 8 -->
+      <div class="section" id="tos-payment">
+        <h2><span class="section-number">8</span> Payments & Subscriptions</h2>
+        <p>EasyMark offers both free and paid subscription plans. Paid plan details, pricing, and billing cycles are displayed on our pricing page and within the application.</p>
+        <ul>
+          <li><strong>Billing:</strong> Paid subscriptions are billed in advance on a monthly or annual basis</li>
+          <li><strong>Cancellation:</strong> You may cancel your subscription at any time; access continues until the end of the current billing period</li>
+          <li><strong>Refunds:</strong> We do not offer refunds for partial billing periods unless required by applicable law</li>
+          <li><strong>Price Changes:</strong> We will provide at least 30 days' notice before changing subscription prices</li>
+        </ul>
+      </div>
+
+      <!-- 9 -->
+      <div class="section" id="tos-termination">
+        <h2><span class="section-number">9</span> Termination</h2>
+        <p>You may delete your account at any time through the account settings page. Upon deletion, your session data will be removed from our systems within 30 days, subject to our data retention obligations.</p>
+        <p>EasyMark reserves the right to suspend or permanently terminate your account, without prior notice, if we determine that you have violated these Terms, engaged in fraudulent activity, or posed a security risk to the platform or other users.</p>
+      </div>
+
+      <!-- 10 -->
+      <div class="section" id="tos-liability">
+        <h2><span class="section-number">10</span> Limitation of Liability</h2>
+        <p>To the fullest extent permitted by applicable law, EasyMark and its team shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of, or inability to use, the Service — including but not limited to loss of data, loss of revenue, or academic consequences.</p>
+        <p>EasyMark's total cumulative liability to you for any claim arising from these Terms or the Service shall not exceed the amount you paid to EasyMark in the three months preceding the claim.</p>
+        <p>The Service is provided "as is" and "as available" without warranty of any kind, express or implied, including warranties of merchantability, fitness for a particular purpose, or non-infringement.</p>
+      </div>
+
+      <!-- 11 -->
+      <div class="section" id="tos-changes">
+        <h2><span class="section-number">11</span> Changes to Terms</h2>
+        <p>We may update these Terms from time to time. When we make material changes, we will notify you by email and display a notice within the application at least 14 days before the changes take effect. Your continued use of EasyMark after the effective date constitutes your acceptance of the revised Terms.</p>
+      </div>
+
+      <!-- 12 -->
+      <div class="section" id="tos-governing">
+        <h2><span class="section-number">12</span> Governing Law</h2>
+        <p>These Terms shall be governed by and construed in accordance with the laws of the Republic of Ghana, without regard to its conflict of law provisions. Any disputes arising under these Terms shall be subject to the exclusive jurisdiction of the courts of Ghana.</p>
+        <p>If any provision of these Terms is found to be unenforceable, the remaining provisions will continue in full force and effect.</p>
+
+        <div class="contact-card">
+          <div class="contact-card-title">Questions about our Terms?</div>
+          <div class="contact-row">
+            <span class="contact-label">Email</span>
+            <span class="contact-value"><a href="mailto:cnoble451@gmail.com">cnoble451@gmail.com</a></span>
+          </div>
+          <div class="contact-row">
+            <span class="contact-label">Website</span>
+            <span class="contact-value"><a href="https://easymark-jade.vercel.app">easymark-jade.vercel.app</a></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════
+         PRIVACY POLICY
+    ══════════════════════════════════════════════ -->
+    <div class="doc" id="privacy">
+
+      <div class="doc-header">
+        <div class="doc-header-row">
+          <div class="doc-icon" style="background: rgba(15,207,138,0.12);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0FCF8A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="doc-title">Privacy Policy</div>
+            <div class="doc-meta">
+              <span>Effective: July 29, 2026</span>
+              <span>Last Updated: July 29, 2026</span>
+              <span class="badge badge-green">Version 1.0</span>
+            </div>
+          </div>
+        </div>
+        <div class="doc-intro">
+          At EasyMark, your privacy matters to us. This Privacy Policy explains what information we collect, how we use it, and the choices you have. We are committed to handling your data with transparency and care.
+        </div>
+      </div>
+
+      <!-- 1 -->
+      <div class="section" id="pp-intro">
+        <h2><span class="section-number">1</span> Introduction</h2>
+        <p>EasyMark ("we", "us", or "our") operates the EasyMark platform, an AI-powered exam script marking tool for educators. This Privacy Policy applies to all users of our website and application at <a href="https://easymark-jade.vercel.app">easymark-jade.vercel.app</a>.</p>
+        <p>By using EasyMark, you consent to the collection and use of your information as described in this policy. If you do not agree, please discontinue use of the Service.</p>
+      </div>
+
+      <!-- 2 -->
+      <div class="section" id="pp-collect">
+        <h2><span class="section-number">2</span> Information We Collect</h2>
+        <h3>Information You Provide</h3>
+        <ul>
+          <li><strong>Account information:</strong> Your name and email address when you register via Auth0</li>
+          <li><strong>Profile picture:</strong> If provided through your Auth0 identity provider (e.g. Google)</li>
+          <li><strong>Uploaded materials:</strong> Lecture slides, marking schemes, and exam scripts you upload to the platform</li>
+          <li><strong>Exam metadata:</strong> Course names, course codes, academic years, and examiner names you enter</li>
+          <li><strong>Communications:</strong> Any messages you send to our support team</li>
+        </ul>
+        <h3>Information Collected Automatically</h3>
+        <ul>
+          <li><strong>Usage data:</strong> Pages visited, features used, and actions taken within the application</li>
+          <li><strong>Device information:</strong> Browser type, operating system, and screen resolution</li>
+          <li><strong>Log data:</strong> IP address, access times, and referring URLs</li>
+          <li><strong>Session data:</strong> Marking session history stored locally in your browser</li>
+        </ul>
+        <h3>Information from Third Parties</h3>
+        <ul>
+          <li><strong>Auth0:</strong> We use Auth0 for authentication. Auth0 may share your name, email, and profile picture with us upon login</li>
+        </ul>
+      </div>
+
+      <!-- 3 -->
+      <div class="section" id="pp-use">
+        <h2><span class="section-number">3</span> How We Use Your Information</h2>
+        <p>We use the information we collect to:</p>
+        <ul>
+          <li>Create and manage your account and authenticate your identity</li>
+          <li>Provide, operate, and improve the EasyMark platform</li>
+          <li>Process uploaded exam scripts using AI and return grading results to you</li>
+          <li>Save your marking session history for your personal reference</li>
+          <li>Send important service notifications, updates, and security alerts</li>
+          <li>Respond to your support enquiries and feedback</li>
+          <li>Analyse usage patterns to improve our features and user experience</li>
+          <li>Enforce our Terms of Service and prevent abuse</li>
+          <li>Comply with legal obligations</li>
+        </ul>
+        <div class="highlight-box">
+          <p><strong>We do not sell your personal data</strong> to third parties. We do not use your data for advertising purposes.</p>
+        </div>
+      </div>
+
+      <!-- 4 -->
+      <div class="section" id="pp-share">
+        <h2><span class="section-number">4</span> Information Sharing</h2>
+        <p>We do not sell, rent, or trade your personal information. We may share your data only in the following limited circumstances:</p>
+        <ul>
+          <li><strong>Service providers:</strong> Trusted third-party providers who help us operate the platform (e.g. Auth0 for authentication, Anthropic's API for AI processing, Vercel for hosting). These providers are contractually obligated to protect your data</li>
+          <li><strong>Legal requirements:</strong> When required by law, court order, or governmental authority</li>
+          <li><strong>Safety:</strong> When necessary to protect the rights, property, or safety of EasyMark, our users, or the public</li>
+          <li><strong>Business transfers:</strong> In the event of a merger, acquisition, or sale of assets, your data may be transferred. We will notify you before this occurs</li>
+        </ul>
+        <h3>AI Processing</h3>
+        <p>Uploaded exam scripts and materials are processed by Anthropic's Claude AI via their API. This processing is governed by Anthropic's data handling policies. We recommend reviewing <a href="https://www.anthropic.com/privacy" target="_blank">Anthropic's Privacy Policy</a> for details on how they handle API data.</p>
+      </div>
+
+      <!-- 5 -->
+      <div class="section" id="pp-storage">
+        <h2><span class="section-number">5</span> Data Storage & Security</h2>
+        <p>Your account data is stored and managed by Auth0. Marking session history is stored locally in your browser using localStorage and is never transmitted to our servers.</p>
+        <p>We implement industry-standard security measures to protect your data, including:</p>
+        <ul>
+          <li>HTTPS encryption for all data in transit</li>
+          <li>Secure authentication managed by Auth0</li>
+          <li>Regular security reviews of our platform</li>
+        </ul>
+        <div class="warning-box">
+          <p><strong>Please note:</strong> No method of transmission over the internet or electronic storage is 100% secure. While we strive to protect your data, we cannot guarantee absolute security.</p>
+        </div>
+      </div>
+
+      <!-- 6 -->
+      <div class="section" id="pp-retention">
+        <h2><span class="section-number">6</span> Data Retention</h2>
+        <p>We retain your personal data for as long as your account is active or as needed to provide the Service. If you delete your account:</p>
+        <ul>
+          <li>Your account information will be deleted from Auth0 within 30 days</li>
+          <li>Locally stored session data will be cleared from your browser immediately upon account deletion</li>
+          <li>We may retain anonymised, aggregated data that cannot identify you for analytical purposes</li>
+        </ul>
+        <p>We may retain certain data longer where required by law or for legitimate business purposes such as fraud prevention.</p>
+      </div>
+
+      <!-- 7 -->
+      <div class="section" id="pp-rights">
+        <h2><span class="section-number">7</span> Your Rights</h2>
+        <p>Depending on your location, you may have the following rights regarding your personal data:</p>
+        <ul>
+          <li><strong>Access:</strong> Request a copy of the personal data we hold about you</li>
+          <li><strong>Correction:</strong> Request correction of inaccurate or incomplete data</li>
+          <li><strong>Deletion:</strong> Request deletion of your personal data ("right to be forgotten")</li>
+          <li><strong>Portability:</strong> Request your data in a structured, machine-readable format</li>
+          <li><strong>Objection:</strong> Object to certain types of processing of your data</li>
+          <li><strong>Withdrawal of consent:</strong> Withdraw consent where processing is based on consent</li>
+        </ul>
+        <p>To exercise any of these rights, please contact us at <a href="mailto:cnoble451@gmail.com">cnoble451@gmail.com</a>. We will respond within 30 days.</p>
+      </div>
+
+      <!-- 8 -->
+      <div class="section" id="pp-cookies">
+        <h2><span class="section-number">8</span> Cookies & Local Storage</h2>
+        <p>EasyMark uses the following browser technologies:</p>
+        <ul>
+          <li><strong>Authentication cookies:</strong> Set by Auth0 to maintain your login session. These are essential for the Service to function</li>
+          <li><strong>localStorage:</strong> Used to save your marking session history locally on your device. This data never leaves your browser</li>
+        </ul>
+        <p>We do not use advertising cookies, tracking pixels, or third-party analytics cookies. You can clear localStorage at any time through your browser settings, which will remove your local session history.</p>
+      </div>
+
+      <!-- 9 -->
+      <div class="section" id="pp-children">
+        <h2><span class="section-number">9</span> Children's Privacy</h2>
+        <p>EasyMark is designed for use by educators and is not directed at children under the age of 13. We do not knowingly collect personal information from children under 13. If you believe a child has provided us with personal information, please contact us at <a href="mailto:cnoble451@gmail.com">cnoble451@gmail.com</a> and we will take steps to delete such information promptly.</p>
+        <p>Note that exam scripts uploaded by educators may contain student information. Educators are responsible for ensuring they handle student data in compliance with applicable laws and their institution's data protection policies.</p>
+      </div>
+
+      <!-- 10 -->
+      <div class="section" id="pp-changes">
+        <h2><span class="section-number">10</span> Changes to This Policy</h2>
+        <p>We may update this Privacy Policy periodically to reflect changes in our practices or applicable laws. When we make material changes, we will notify you via email and display a prominent notice within the application at least 14 days before the changes take effect.</p>
+        <p>We encourage you to review this policy periodically. The "Last Updated" date at the top of this page indicates when the policy was last revised.</p>
+      </div>
+
+      <!-- 11 -->
+      <div class="section" id="pp-contact">
+        <h2><span class="section-number">11</span> Contact Us</h2>
+        <p>If you have any questions, concerns, or requests regarding this Privacy Policy or how we handle your data, please do not hesitate to reach out:</p>
+
+        <div class="contact-card">
+          <div class="contact-card-title">EasyMark — Privacy & Legal</div>
+          <div class="contact-row">
+            <span class="contact-label">Privacy</span>
+            <span class="contact-value"><a href="mailto:cnoble451@gmail.com">cnoble451@gmail.com</a></span>
+          </div>
+          <div class="contact-row">
+            <span class="contact-label">Legal</span>
+            <span class="contact-value"><a href="mailto:cnoble451@gmail.com">cnoble451@gmail.com</a></span>
+          </div>
+          <div class="contact-row">
+            <span class="contact-label">Support</span>
+            <span class="contact-value"><a href="mailto:cnoble451@gmail.com">cnoble451@gmail.com</a></span>
+          </div>
+          <div class="contact-row">
+            <span class="contact-label">Website</span>
+            <span class="contact-value"><a href="https://easymark-jade.vercel.app">easymark-jade.vercel.app</a></span>
+          </div>
+          <div class="contact-row">
+            <span class="contact-label">Location</span>
+            <span class="contact-value">Accra, Ghana</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /privacy doc -->
+
+  </main>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div>© 2026 EasyMark. All rights reserved.</div>
+  <div style="display:flex; gap:20px;">
+    <a href="#terms">Terms of Service</a>
+    <a href="#privacy">Privacy Policy</a>
+    <a href="mailto:cnoble451@gmail.com">Contact</a>
+    <a href="https://easymark-jade.vercel.app">Back to App</a>
+  </div>
+</footer>
+
+</body>
+</html>
