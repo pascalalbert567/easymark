@@ -648,17 +648,53 @@ function ScanStep({ onComplete, data, setData, markingData }) {
     if (markingData.spelling)      rules.push("ignore spelling errors");
     if (markingData.conceptual)    rules.push("prioritise conceptual understanding");
     if (markingData.instructions)  rules.push(markingData.instructions);
+
+    // Always use the exact total marks the teacher entered
     const total = parseInt(markingData.totalMarks) || 100;
-    const sys = `You are EasyMark, a professional AI exam marker for ${markingData.courseName || "a university course"}. Total marks: ${total}. Rules: ${rules.join("; ") || "standard grading"}.
-Respond ONLY with valid JSON (no markdown):
-{"totalScore":<n>,"maxScore":${total},"percentage":<n>,"grade":"<A|B|C|D|F>","questions":[{"number":1,"topic":"<t>","maxMarks":<n>,"awarded":<n>,"feedback":"<1 sentence>"},{"number":2,"topic":"<t>","maxMarks":<n>,"awarded":<n>,"feedback":"<1 sentence>"},{"number":3,"topic":"<t>","maxMarks":<n>,"awarded":<n>,"feedback":"<1 sentence>"},{"number":4,"topic":"<t>","maxMarks":<n>,"awarded":<n>,"feedback":"<1 sentence>"},{"number":5,"topic":"<t>","maxMarks":<n>,"awarded":<n>,"feedback":"<1 sentence>"}],"strengths":"<1 sentence>","improvements":"<1 sentence>","overallFeedback":"<2 sentences>"}`;
+    const qBase = Math.floor(total / 5);
+    const qLast = total - (qBase * 4);
+
+    const sys = `You are EasyMark, a professional AI exam marker for ${markingData.courseName || "a university course"}.
+
+CRITICAL SCORING RULES — follow these exactly:
+- The exam total is ${total} marks. maxScore must be ${total}. Never use 100 unless total is 100.
+- totalScore must be a whole number from 0 to ${total}.
+- percentage = round((totalScore / ${total}) * 100). This is the only field out of 100.
+- The 5 question maxMarks must sum to exactly ${total}.
+- awarded per question must not exceed that question maxMarks.
+- grade: A=80-100%, B=70-79%, C=60-69%, D=50-59%, F=below 50%.
+- Rules: ${rules.join("; ") || "standard grading"}.
+
+Respond ONLY in valid JSON (no markdown):
+{"totalScore":<0-${total}>,"maxScore":${total},"percentage":<0-100>,"grade":"<A|B|C|D|F>","questions":[{"number":1,"topic":"<t>","maxMarks":${qBase},"awarded":<n>,"feedback":"<1 sentence>"},{"number":2,"topic":"<t>","maxMarks":${qBase},"awarded":<n>,"feedback":"<1 sentence>"},{"number":3,"topic":"<t>","maxMarks":${qBase},"awarded":<n>,"feedback":"<1 sentence>"},{"number":4,"topic":"<t>","maxMarks":${qBase},"awarded":<n>,"feedback":"<1 sentence>"},{"number":5,"topic":"<t>","maxMarks":${qLast},"awarded":<n>,"feedback":"<1 sentence>"}],"strengths":"<1 sentence>","improvements":"<1 sentence>","overallFeedback":"<2 sentences>"}`;
+
     try {
-      const raw = await callClaude(sys, `Mark student: ${student.name}. Generate realistic varied scores.`);
-      return { ...student, status: "marked", result: JSON.parse(raw.replace(/```json|```/g, "").trim()) };
+      const raw    = await callClaude(sys, `Mark student: ${student.name}. Exam total: ${total} marks. Scores must be out of ${total}, not 100.`);
+      const parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
+      // Always enforce correct values regardless of AI output
+      parsed.maxScore   = total;
+      parsed.percentage = Math.round((parsed.totalScore / total) * 100);
+      parsed.grade      = parsed.percentage >= 80 ? "A" : parsed.percentage >= 70 ? "B" : parsed.percentage >= 60 ? "C" : parsed.percentage >= 50 ? "D" : "F";
+      return { ...student, status: "marked", result: parsed };
     } catch {
-      const score = Math.floor(Math.random() * 45 + 45);
-      const pct = Math.round((score / total) * 100);
-      return { ...student, status: "marked", result: { totalScore: score, maxScore: total, percentage: pct, grade: pct>=80?"A":pct>=70?"B":pct>=60?"C":pct>=50?"D":"F", questions:[1,2,3,4,5].map(n=>({number:n,topic:`Topic ${n}`,maxMarks:Math.floor(total/5),awarded:Math.floor(Math.random()*(total/5*.5)+(total/5*.4)),feedback:"Response demonstrated adequate understanding."})), strengths:"Good command of core subject matter.", improvements:"More precise terminology would strengthen answers.", overallFeedback:"A solid performance. Further practice on weaker areas is recommended." } };
+      const score = Math.floor(Math.random() * (total * 0.45) + (total * 0.45));
+      const pct   = Math.round((score / total) * 100);
+      return {
+        ...student, status: "marked",
+        result: {
+          totalScore: score, maxScore: total, percentage: pct,
+          grade: pct>=80?"A":pct>=70?"B":pct>=60?"C":pct>=50?"D":"F",
+          questions: [1,2,3,4,5].map(n => ({
+            number: n, topic: `Topic ${n}`,
+            maxMarks: n === 5 ? qLast : qBase,
+            awarded: Math.floor(Math.random() * ((n===5?qLast:qBase) * 0.5) + ((n===5?qLast:qBase) * 0.45)),
+            feedback: "Response demonstrated adequate understanding.",
+          })),
+          strengths: "Good command of core subject matter.",
+          improvements: "More precise terminology would strengthen answers.",
+          overallFeedback: "A solid performance. Further practice on weaker areas is recommended.",
+        },
+      };
     }
   };
 
@@ -733,7 +769,7 @@ Respond ONLY with valid JSON (no markdown):
                 {s.result ? (
                   <div style={{ textAlign: "right", flexShrink: 0 }}>
                     <div style={{ fontSize: 15, fontWeight: 800, fontFamily: "JetBrains Mono, monospace", color: col }}>{s.result.totalScore}<span style={{ fontSize: 10, color: T.slate }}>/{s.result.maxScore}</span></div>
-                    <div style={{ fontSize: 10, color: T.slate }}>Grade {s.result.grade}</div>
+                    <div style={{ fontSize: 10, color: col, fontWeight: 600 }}>{s.result.percentage}% · Grade {s.result.grade}</div>
                   </div>
                 ) : <Badge color={T.amber}>Pending</Badge>}
                 <button onClick={() => setData(p => ({ ...p, students: p.students.filter(x => x.id !== s.id) }))} style={{ background: "none", border: "none", cursor: "pointer", color: T.slate, padding: 4, display: "flex", flexShrink: 0 }}><Icon name="x" size={12} /></button>
