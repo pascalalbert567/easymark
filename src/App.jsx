@@ -1023,10 +1023,195 @@ function MarkingApp({ user, onDashboard }) {
   );
 }
 
+// ─── SESSION VIEWER ───────────────────────────────────────────────────────────
+function SessionViewer({ session, user, onBack }) {
+  const { isMobile } = useBreakpoint();
+  const [selected, setSelected] = useState(null);
+  const [filter,   setFilter]   = useState("all");
+  const [sortBy,   setSortBy]   = useState("name");
+
+  const students = session.students || [];
+  const gc = p => p >= 70 ? T.emerald : p >= 50 ? T.amber : T.red;
+  const gradeLabel = p => p >= 80 ? "Distinction" : p >= 70 ? "Merit" : p >= 60 ? "Credit" : p >= 50 ? "Pass" : "Fail";
+
+  const sorted = [...students].filter(s => {
+    if (filter === "pass") return s.percentage >= 50;
+    if (filter === "fail") return s.percentage < 50;
+    if (filter === "top")  return s.percentage >= 70;
+    return true;
+  }).sort((a, b) => {
+    if (sortBy === "score") return b.score - a.score;
+    if (sortBy === "grade") return a.grade.localeCompare(b.grade);
+    return a.name.localeCompare(b.name);
+  });
+
+  const exportCSV = () => {
+    const rows = [["Student", "Score", "Max", "Percentage", "Grade", "Status"]];
+    students.forEach(s => rows.push([s.name, s.score, s.max, s.percentage + "%", s.grade, s.percentage >= 50 ? "PASS" : "FAIL"]));
+    Object.assign(document.createElement("a"), {
+      href: URL.createObjectURL(new Blob([rows.map(r => r.map(c => `"${c}"`).join(",")).join("\n")], { type: "text/csv" })),
+      download: `${session.courseCode || "EasyMark"}_${session.date}_Results.csv`,
+    }).click();
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", background: T.navy, paddingBottom: isMobile ? 40 : 0 }}>
+      {/* Nav */}
+      <nav style={{ background: T.navyMid, borderBottom: `1px solid ${T.border}`, padding: isMobile ? "0 16px" : "0 32px", display: "flex", alignItems: "center", height: 58, gap: 12, position: "sticky", top: 0, zIndex: 50 }}>
+        <button onClick={onBack}
+          style={{ display: "flex", alignItems: "center", gap: 7, background: T.navyLight, border: `1px solid ${T.border}`, borderRadius: 8, padding: "7px 13px", color: T.textSub, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+          <Icon name="dashboard" size={13} color={T.textSub} /> {isMobile ? "Back" : "Back to Dashboard"}
+        </button>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: T.textPrimary }}>{session.courseName}</div>
+          <div style={{ fontSize: 11, color: T.slate }}>{session.courseCode && `${session.courseCode} · `}{session.date}</div>
+        </div>
+        <button onClick={exportCSV}
+          style={{ display: "flex", alignItems: "center", gap: 6, background: `${T.emerald}15`, border: `1px solid ${T.emerald}35`, borderRadius: 9, padding: "7px 13px", color: T.emerald, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+          <Icon name="download" size={13} color={T.emerald} /> {isMobile ? "" : "Export CSV"}
+        </button>
+      </nav>
+
+      <div style={{ maxWidth: 1000, margin: "0 auto", padding: isMobile ? "20px 16px" : "32px 40px" }}>
+        {/* Summary */}
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4,1fr)", gap: 12, marginBottom: 22 }}>
+          <Stat label="Scripts Marked" value={session.studentCount || students.length} color={T.blue} />
+          <Stat label="Class Average"  value={`${session.avgScore || 0}%`} color={gc(session.avgScore || 0)} sub={gradeLabel(session.avgScore || 0)} />
+          <Stat label="Pass Rate"      value={`${session.passRate || 0}%`} color={T.emerald} />
+          <Stat label="Examiner"       value={session.examiner || "—"}     color={T.slate} />
+        </div>
+
+        {/* Grade distribution */}
+        {session.gradeDistribution && (
+          <div style={{ background: T.navyCard, borderRadius: 14, padding: "14px 16px", marginBottom: 18, border: `1px solid ${T.border}` }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: T.textSub, marginBottom: 12, textTransform: "uppercase", letterSpacing: ".8px" }}>Grade Distribution</div>
+            <div style={{ display: "flex", gap: 8, alignItems: "flex-end", height: 56 }}>
+              {["A","B","C","D","F"].map((g, i) => {
+                const count = session.gradeDistribution[g] || 0;
+                const total = session.studentCount || students.length || 1;
+                const pct   = (count / total) * 100;
+                const col   = [T.emerald, T.blue, T.amber, "#F59E0B", T.red][i];
+                return (
+                  <div key={g} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                    <div style={{ fontSize: 10, color: T.textSub, fontWeight: 600 }}>{count}</div>
+                    <div style={{ width: "100%", background: `${col}22`, borderRadius: 4, height: `${Math.max(pct * .5, count > 0 ? 8 : 2)}px`, border: count > 0 ? `1px solid ${col}40` : "none" }}>
+                      <div style={{ width: "100%", height: "100%", background: col, borderRadius: 4 }} />
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: col }}>{g}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* No detailed data notice */}
+        {students.length === 0 && (
+          <div style={{ background: `${T.amber}10`, border: `1px solid ${T.amber}25`, borderRadius: 12, padding: "16px 18px", marginBottom: 18 }}>
+            <div style={{ fontSize: 13, color: T.amber, fontWeight: 600, marginBottom: 4 }}>Summary view only</div>
+            <div style={{ fontSize: 12, color: T.textSub }}>Detailed per-student breakdown is available for sessions marked in the current browser. This session shows summary data only.</div>
+          </div>
+        )}
+
+        {/* Student list */}
+        {students.length > 0 && (
+          <>
+            {/* Filter/sort */}
+            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: 10, marginBottom: 12 }}>
+              <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                {[["all","All"],["pass","Pass"],["fail","Fail"],["top","Top ≥70%"]].map(([val, label]) => (
+                  <button key={val} onClick={() => setFilter(val)}
+                    style={{ padding: "5px 11px", borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: "pointer", border: "none", background: filter === val ? T.blue : T.navyCard, color: filter === val ? T.white : T.textSub }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+                style={{ background: T.navyCard, border: `1px solid ${T.border}`, borderRadius: 7, padding: "6px 10px", fontSize: 11, color: T.textPrimary, outline: "none" }}>
+                <option value="name">Sort: Name</option>
+                <option value="score">Sort: Score</option>
+                <option value="grade">Sort: Grade</option>
+              </select>
+            </div>
+
+            {/* Table */}
+            <div style={{ background: T.navyCard, borderRadius: 14, overflow: "hidden", border: `1px solid ${T.border}`, marginBottom: 16 }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "2fr 70px 55px" : "2fr 100px 80px 70px 80px", padding: "10px 14px", background: T.navyMid, fontSize: 10, fontWeight: 700, color: T.slate, textTransform: "uppercase", letterSpacing: "1px" }}>
+                <div>Student</div>
+                <div style={{ textAlign: "center" }}>Score</div>
+                <div style={{ textAlign: "center" }}>Pct.</div>
+                {!isMobile && <div style={{ textAlign: "center" }}>Grade</div>}
+                {!isMobile && <div style={{ textAlign: "center" }}>Status</div>}
+              </div>
+              {sorted.map((s, i) => (
+                <div key={i} onClick={() => setSelected(selected?.name === s.name ? null : s)}
+                  style={{ display: "grid", gridTemplateColumns: isMobile ? "2fr 70px 55px" : "2fr 100px 80px 70px 80px", padding: "11px 14px", borderTop: `1px solid ${T.border}`, background: selected?.name === s.name ? `rgba(59,142,255,0.09)` : i % 2 === 0 ? "transparent" : `${T.navyMid}55`, cursor: "pointer", transition: "background .15s" }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: T.textPrimary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</div>
+                    {isMobile && <div style={{ fontSize: 10, color: gc(s.percentage), fontWeight: 700 }}>Grade {s.grade} · {s.percentage >= 50 ? "PASS" : "FAIL"}</div>}
+                  </div>
+                  <div style={{ textAlign: "center", fontSize: 13, fontFamily: "JetBrains Mono, monospace", fontWeight: 600, color: T.slateLight, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {s.score}<span style={{ fontSize: 10, color: T.slate }}>/{s.max}</span>
+                  </div>
+                  <div style={{ textAlign: "center", fontSize: 13, fontFamily: "JetBrains Mono, monospace", fontWeight: 700, color: gc(s.percentage), display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {s.percentage}%
+                  </div>
+                  {!isMobile && (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, padding: "3px 10px", borderRadius: 7, background: `${gc(s.percentage)}22`, color: gc(s.percentage) }}>{s.grade}</span>
+                    </div>
+                  )}
+                  {!isMobile && (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 5, background: s.percentage >= 50 ? `${T.emerald}18` : `${T.red}18`, color: s.percentage >= 50 ? T.emerald : T.red }}>
+                        {s.percentage >= 50 ? "PASS" : "FAIL"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Quick detail panel on click */}
+            {selected && (
+              <div style={{ background: T.navyCard, borderRadius: 14, padding: "16px 18px", border: `1px solid ${T.blue}30`, animation: "slideIn .2s ease" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: T.textPrimary }}>{selected.name}</div>
+                  <button onClick={() => setSelected(null)} style={{ background: T.navyLight, border: "none", borderRadius: 6, cursor: "pointer", padding: 5, display: "flex" }}>
+                    <Icon name="x" size={13} color={T.slate} />
+                  </button>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
+                  {[
+                    { label: "Score",   value: `${selected.score}/${selected.max}`, color: gc(selected.percentage) },
+                    { label: "Percent", value: `${selected.percentage}%`,           color: gc(selected.percentage) },
+                    { label: "Grade",   value: selected.grade,                      color: gc(selected.percentage) },
+                  ].map(item => (
+                    <div key={item.label} style={{ background: T.navyLight, borderRadius: 10, padding: "12px", textAlign: "center" }}>
+                      <div style={{ fontSize: 20, fontWeight: 800, color: item.color, fontFamily: "JetBrains Mono, monospace" }}>{item.value}</div>
+                      <div style={{ fontSize: 10, color: T.slate, marginTop: 4 }}>{item.label}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: 12, padding: "10px 12px", background: selected.percentage >= 50 ? `${T.emerald}10` : `${T.red}10`, border: `1px solid ${selected.percentage >= 50 ? T.emerald : T.red}25`, borderRadius: 9, textAlign: "center" }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: selected.percentage >= 50 ? T.emerald : T.red }}>
+                    {selected.percentage >= 50 ? "✓ PASSED" : "✗ FAILED"} · {gradeLabel(selected.percentage)}
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── ROOT APP ─────────────────────────────────────────────────────────────────
 export default function App() {
   const { isLoading, isAuthenticated, user } = useAuth0();
-  const [view, setView] = useState("dashboard");
+  const [view,           setView]           = useState("dashboard");
+  const [activeSession,  setActiveSession]  = useState(null);
   const { prompt, installed, install } = usePWAInstall();
   const [showBanner, setShowBanner] = useState(true);
 
@@ -1044,9 +1229,19 @@ export default function App() {
   return (
     <>
       <style>{GLOBAL_STYLES}</style>
-      {view === "marking"
-        ? <MarkingApp user={user} onDashboard={() => setView("dashboard")} />
-        : <Dashboard  user={user} onNewSession={() => setView("marking")} onLoadSession={() => setView("dashboard")} />}
+      {view === "marking" && (
+        <MarkingApp user={user} onDashboard={() => setView("dashboard")} />
+      )}
+      {view === "session" && activeSession && (
+        <SessionViewer session={activeSession} user={user} onBack={() => { setView("dashboard"); setActiveSession(null); }} />
+      )}
+      {view === "dashboard" && (
+        <Dashboard
+          user={user}
+          onNewSession={() => setView("marking")}
+          onLoadSession={session => { setActiveSession(session); setView("session"); }}
+        />
+      )}
       {prompt && showBanner && !installed && (
         <InstallBanner onInstall={() => { install(); setShowBanner(false); }} onDismiss={() => setShowBanner(false)} />
       )}
